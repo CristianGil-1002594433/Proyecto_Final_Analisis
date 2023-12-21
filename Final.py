@@ -495,7 +495,7 @@ def convertir_a_letras(combinacion_numeros):
 
 # Función para actualizar la etiqueta de la consola
 def actualizar_etiqueta(emd, combinacion):
-    st.write(f"Menor distancia EMD: {emd}, Combinación correspondiente: {combinacion}")
+    st.write(f"Menor distancia EMD: {emd}")
 
 
 #---------------------------------------------------Funciones de las tablas---------------------------------------------------#
@@ -817,17 +817,16 @@ def main():
     if 'vista_actual' not in st.session_state:
         st.session_state.vista_actual = None
 
-    col1, col2, col3, col4, col5 = st.columns([2,2,2,2.2,1.8])
+    col1, col2, col3, col4, col5 = st.columns([2,2,2.2,1.8,2])
 
     if col1.button("Mostrar matriz", key="btn_mostrar_matriz"):
         st.session_state.vista_actual = "Mostrar matriz"
     if col2.button("Estado futuro", key="btn_estado_futuro"):
         st.session_state.vista_actual = "Estado futuro"
-    if col3.button("Estado Canal", key="btn_estado_canal"):
-        st.session_state.vista_actual = "Estado Canal"
-    if col4.button("Marginalizacion", key="btn_marginalizacion"):
+    
+    if col3.button("Marginalizacion", key="btn_marginalizacion"):
         st.session_state.vista_actual = "Marginalizacion"
-    if col5.button("EMD", key="btn_emd"):
+    if col4.button("EMD", key="btn_emd"):
         st.session_state.vista_actual = "EMD"
 
     if st.session_state.vista_actual == "Marginalizacion":
