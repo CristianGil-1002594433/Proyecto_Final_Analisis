@@ -6,6 +6,7 @@ import numpy as np
 from itertools import product
 from itertools import combinations
 import copy
+import time
 
 # pip install pandas
 # pip install matplotlib
@@ -512,15 +513,24 @@ def MostrarMatriz(matriz):
         st.dataframe(df)
 
 def EstadoEstado(matriz):
+    inicioEstado = time.time()
     casos = generar_casos(matriz)
+    
 
     imprimir_tabla_relaciones_binarias(casos, EstadoEstadoF(matriz, 1))
+    finEstado = time.time()
+    tiempo_transcurrido_estado = finEstado - inicioEstado
+    st.write(f"Tiempo de ejecución de estado: {tiempo_transcurrido_estado} segundos")
 
 def EstadoCanal(matriz): 
+    inicioCanal = time.time()
     casos = generar_casos(matriz)
     
     totalCanales, totalCoincidencias = EstadoCanalFuturo(matriz, 1, casos)
     mostrar_resultados(totalCanales, totalCoincidencias, casos)
+    finCanal = time.time()
+    tiempo_transcurrido_canal = finCanal - inicioCanal
+    st.write(f"Tiempo de ejecución de canal: {tiempo_transcurrido_canal} segundos")
 
 def Marginalizacion(vector):
     if not matriz:
@@ -531,9 +541,11 @@ def Marginalizacion(vector):
 
         letras_columnas = st.text_input("Estado Actual a evaluar, separados por espacios (A B C)")
         letras_filas = st.text_input("Estados Futuros a evaluar, separados por espacios (A B C)")
-
+        inicio1 = time.time()
         valores_filas = convertir_letras_a_valores_entrega3(letras_filas)
         valores_columnas = convertir_letras_a_valores_entrega3(letras_columnas)
+        fin1 = time.time()
+        tiempo_transcurrido_1 = fin1 - inicio1
 
         def convertirCasos(c,caso):
             nuevamatriz=[]
@@ -616,11 +628,14 @@ def Marginalizacion(vector):
             contenido= convertircontenido(matriz[1:])
             return caso1, caso2, contenido
         
+        inicio2 = time.time()
         t1, t2, c = partir_lista(vector)
         t1 = convertirCasos(valores_filas,t1)
         t2 = convertirCasos(valores_columnas,t2)
         t1n, cn= convertircolumnas(t1,c)
         t2n, cf = convertirfilas(t2,cn)
+        fin2 = time.time()
+        tiempo_transcurrido_2 = fin2 - inicio2
 
         # Mostrar los resultados como una tabla
         indice_columnas_str = [''.join(map(str, col)) for col in t1n]
@@ -646,7 +661,7 @@ def Marginalizacion(vector):
 
         if st.button("Procesar", key="btn_procesar"):
             st.session_state.procesar_estado = True
-                    
+        inicio3 = time.time()          
         if st.session_state.procesar_estado:
             if comp_input:
                 comp = [int(valor) for valor in comp_input.split()]
@@ -655,6 +670,11 @@ def Marginalizacion(vector):
                     graficarTablas(t1n, [cf[index]])
                 else:
                     st.error("La fila digitada no se encuentra en las generadas por el programa")
+        fin3 = time.time()
+        tiempo_transcurrido_3 = fin3 - inicio3
+        tiempo_total = tiempo_transcurrido_3 + tiempo_transcurrido_2 + tiempo_transcurrido_1
+        st.write(f"Tiempo de ejecución de marginalización: {tiempo_total} segundos")
+
 
 def EMD(vector):
 
@@ -671,6 +691,8 @@ def EMD(vector):
     elif vector == []:
         st.error("No has generado la matriz EstadoEstado futuro")
     else:
+
+        inicio1 = time.time()
         valores_filas = convertir_letras_a_valores_entrega4(letras_filas)
         valores_columnas = convertir_letras_a_valores_entrega4(letras_columnas)
 
@@ -679,11 +701,12 @@ def EMD(vector):
         matrixoriginalstates = MatrizOriginal[1:2]
         matrixoriginalfirsttitle = MatrizOriginal[0:1]
         MatrizOriginal = np.array(MatrizOriginal[2:])
-
+        fin1 = time.time()
+        tiempo_transcurrido_1 = fin1 - inicio1
         try:
-            if len(valores_filas) == 2:
+            if len(valores_columnas) == 2:
                 comp = st.text_input('Con qué fila desea compararlo? Formato: 0 o 1', key="fila_comparacion").split()
-            elif len(valores_filas) == 4:
+            elif len(valores_columnas) == 4:
                 comp = st.text_input('Con qué fila desea compararlo? Formato: (0 0)', key="fila_comparacion").split()
             else:
                 comp = st.text_input('Con qué fila desea compararlo? Formato: (0 0 0)', key="fila_comparacion").split()
@@ -691,7 +714,7 @@ def EMD(vector):
             comp = [int(valor) for valor in comp]
 
             # Verificar que la longitud de la entrada sea válida
-            if len(comp) != len(valores_filas):
+            if len(comp) != len(valores_columnas):
                 st.error("La entrada no tiene la longitud correcta. Asegúrate de seguir el formato especificado.")
             else:
                 # Continuar con el procesamiento
@@ -701,6 +724,7 @@ def EMD(vector):
         except Exception as e:
             st.error(f"Ocurrió un error inesperado: {str(e)}")
 
+        inicio2 = time.time()
         MatrizOriginalEstados = list(matrixoriginalstates[0])
         indexEstado = MatrizOriginalEstados.index(comp)
         contenidoGraficar = MatrizOriginal[0][indexEstado]
@@ -735,7 +759,10 @@ def EMD(vector):
             contenidoGraficar = lista_resultados_nueva[indexEstado]
             resultados_graficas.append(contenidoGraficar)
             ci += 1
+        fin2 = time.time()
+        tiempo_transcurrido_2 = fin2 - inicio2
 
+        inicio3 = time.time() 
         resultadosEMD = []
         for i in range(1, len(resultados_graficas)):
             resultadosEMD.append(earth_movers_distance(resultado_original, resultados_graficas[i]))
@@ -752,7 +779,10 @@ def EMD(vector):
         min_graf = resultados_graficas[min_index + 1]
         P.append(min_graf)
         graficarTablas(matrix_str, P)
-
+        fin3 = time.time()
+        tiempo_transcurrido_3 = fin3 - inicio3
+        tiempo_total = tiempo_transcurrido_3 + tiempo_transcurrido_2 + tiempo_transcurrido_1
+        st.write(f"Tiempo de ejecución de marginalización: {tiempo_total} segundos")
 
 #---------------------------------------------------Interfaz principal---------------------------------------------------#
 def main():
